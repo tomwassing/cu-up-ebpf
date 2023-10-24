@@ -1,9 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
+#include <stdbool.h>
+
+#include "ciphering.h"
 #include "pdcp_pdu.h"
 #include "pdcp_entity_base.h"
 
+const bool ciphering_enabled = true;
 
 /// PDCP RX state variables,
 /// TS 38.323, section 7.1
@@ -24,7 +28,7 @@ struct pdcp_rx_state st = {
   .rx_reord = 0
 };
 
-int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
+bool parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	uint32_t *data = (void *)(long)ctx->data;
 	uint32_t *data_end = (void *)(long)ctx->data_end;
 
@@ -45,10 +49,10 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
       break;
     default:
       // logger.log_error("Invalid SN size config. sn_size={}", cfg.sn_size);
-      return 0;
+      return false;
   }
 
-	return 1;
+	return true;
 }
 
 SEC("xdp")
@@ -70,6 +74,16 @@ int  xdp_prog_simple(struct xdp_md *ctx) {
     rcvd_hfn = HFN(st.rx_deliv);
   }
   rcvd_count = COUNT(rcvd_hfn, hdr.sn);
+
+  // TODO: check COUNT and notifiy RRC.
+
+  // Deciphering
+  uint32_t* out;
+  if (ciphering_enabled) {
+    out = cipher_decrypt(&ctx->data, &ctx->data_end, rcvd_count);
+  } else {
+    out = &ctx->data;
+  }
 
 	return XDP_PASS;
 }

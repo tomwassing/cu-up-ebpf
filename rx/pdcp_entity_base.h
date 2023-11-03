@@ -37,7 +37,6 @@ uint32_t SN(uint32_t count) {
     return pdcp_compute_sn(count, PDCP_SN); 
 }
 
-
 uint32_t HFN(uint32_t count) { 
     return pdcp_compute_hfn(count, PDCP_SN);
 }

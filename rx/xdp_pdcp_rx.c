@@ -7,7 +7,8 @@
 #include "pdcp_pdu.h"
 #include "pdcp_entity_base.h"
 
-const bool ciphering_enabled = true;
+const bool ciphering_enabled = false;
+const bool integrity_check_enabled = true;
 
 /// PDCP RX state variables,
 /// TS 38.323, section 7.1
@@ -28,7 +29,7 @@ struct pdcp_rx_state st = {
   .rx_reord = 0
 };
 
-bool parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
+int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	uint32_t *data = (void *)(long)ctx->data;
 	uint32_t *data_end = (void *)(long)ctx->data_end;
 
@@ -49,14 +50,14 @@ bool parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
       break;
     default:
       // logger.log_error("Invalid SN size config. sn_size={}", cfg.sn_size);
-      return false;
+      return 0;
   }
 
-	return true;
+	return 1;
 }
 
-SEC("xdp")
-int  xdp_prog_simple(struct xdp_md *ctx) {
+// SEC("xdp")
+int xdp_prog_simple(struct xdp_md *ctx) {
 
   // Unpack header
   struct pdcp_data_pdu_header hdr;
@@ -66,9 +67,9 @@ int  xdp_prog_simple(struct xdp_md *ctx) {
 
   // Calculate RCVD_COUNT:
   uint32_t rcvd_hfn, rcvd_count;
-  if ((int64_t)hdr.sn < (int64_t)SN(st.rx_deliv) - (int64_t)window_size(PDCP_SN)) {
+  if ((int64_t)hdr.sn < (int64_t)SN(st.rx_deliv) - (int64_t)pdpc_window_size(PDCP_SN)) {
     rcvd_hfn = HFN(st.rx_deliv) + 1;
-  } else if (hdr.sn >= SN(st.rx_deliv) + window_size(PDCP_SN)) {
+  } else if (hdr.sn >= SN(st.rx_deliv) + pdpc_window_size(PDCP_SN)) {
     rcvd_hfn = HFN(st.rx_deliv) - 1;
   } else {
     rcvd_hfn = HFN(st.rx_deliv);
@@ -85,7 +86,18 @@ int  xdp_prog_simple(struct xdp_md *ctx) {
     out = &ctx->data;
   }
 
+  if (integrity_check_enabled) {
+    // TODO
+  }
+
+  // removing PDCP header
+  bpf_xdp_adjust_head(ctx, pdpc_header_size(PDCP_SN));
+
 	return XDP_PASS;
 }
 
-char _license[] SEC("license") = "GPL";
+
+int main() {
+  return 0;
+}
+// char _license[] SEC("license") = "GPL";

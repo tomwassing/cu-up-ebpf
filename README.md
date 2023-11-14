@@ -8,7 +8,7 @@ Ubuntu 22.04 LTS with kernel version 5.15.
 
 ## Dependencies
 The main dependencies are `libxdp`, `libbpf`, `llvm`, `clang` and
-`libelf`. `LLVM` and `clang` compiles our restricted-C programs into BPF-byte-code, which is stored in an ELF object file (`libelf`), that is loaded by `libbpf` into the kernel via the `bpf` syscall. XDP programs are managed by `libxdp` which implements the XDP multi-dispatch protocol. Finally, the kernel headers are required for compilation of the eBPF progran.
+`libelf`. `LLVM` and `clang` compiles our restricted-C programs into BPF-byte-code, which is stored in an ELF object file (`libelf`), that is loaded by `libbpf` into the kernel via the `bpf` syscall. XDP programs are managed by `libxdp` which implements the XDP multi-dispatch protocol. Finally, the kernel headers are required for compilation of the program.
 
 ```sh
 sudo apt install cmake clang llvm libelf-dev libpcap-dev build-essential linux-headers-$(uname -r) linux-tools-common linux-tools-generic tcpdump
@@ -38,7 +38,12 @@ cd build && ctest
 
 ### Deployment
 ```sh
-TODO
+sudo ip link set <INTERFACE> xdpdrv obj xdp_cu_up.o sec xdp_cu_up
+```
+
+### Deployment (hardware offloaded)
+```sh
+sudo ip link set <INTERFACE> xdpoffload obj xdp_cu_up.o sec xdp_cu_up
 ```
 
 ## Architecture
@@ -46,11 +51,8 @@ The implementation utilises the PDCP and SDAP implementation from [srsRAN](https
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[AGPL v3.0](https://github.com/srsran/srsRAN_Project/blob/main/LICENSE)

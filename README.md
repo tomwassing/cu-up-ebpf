@@ -25,11 +25,11 @@ sudo apt install cmake clang llvm libelf-dev libpcap-dev build-essential linux-h
 ```
 
 ### Netronome SmartNIC
-The primary goal of the implementation is to hardware accelerate the CU-UP as part of WP4 of the [DESIRE6G](https://desire6g.eu) project. Hardware acceleration can be achieved by using the XDP offload mode. Currently, [Netronome](https://www.netronome.com) is the only hardware vendor that nativelly supports the XDP offload mode. The drivers for kernel version 5.15 can be found at:
+The primary goal of the implementation is to hardware accelerate the CU-UP as part of WP4 of the [DESIRE6G](https://desire6g.eu) project. Hardware acceleration can be achieved by using the XDP offload mode. Currently, [Netronome](https://www.netronome.com) is the only hardware vendor that nativelly supports the XDP offload mode. The beta drivers for kernel version 5.15 can be found at:
 
 https://help.netronome.com/support/solutions/articles/36000072604-software-development-nfp-toolchain
 
-NOTE: Installing the SmartNIC drivers are not required to test or deploy, but is recommended to achieve performance gains.
+NOTE: Installing the Netronome SmartNIC drivers are not required to test or deploy, but is recommended to achieve performance gains.
 
 ## Usage
 

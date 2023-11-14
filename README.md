@@ -1,7 +1,17 @@
 # CU-UP eBPF/XDP Implementation
+
+<img src="./docs/desire6g-logo.svg" width="200">
+
 This repository contains an CU-UP implementation in eBPF/XDP developed as part of WP4 of the [DESIRE6G](https://desire6g.eu) project. [DESIRE6G](https://desire6g.eu) is project coordinated by the University of Amsterdam, [Informatics Institute](https://ivi.uva.nl) and supported by the Smart Networks and Services Joint Undertaking (SNS JU). Funded by Horizon Europe research programme under Grant Agreement no. 101096466.
 
+
 The WP4 provides the programmable data plane components of the DESIRE6G architecture that will enable flexible changes in data plane functionality and the rapid deployment of customized network functions. Furthermore, WP4 will develop a pervasive monitoring infrastructure to obtain real-time information about the network resources with configurable granularity.
+
+## Features
+
+- Ciphering
+- Compression (ROHC)
+- Integrity
 
 ## System Requirements
 Ubuntu 22.04 LTS with kernel version 5.15.

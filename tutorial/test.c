@@ -2,10 +2,13 @@
 #include <bpf/libbpf.h>
 #include <stdio.h>
 #include <bpf/bpf_endian.h>
+#include <assert.h>
+
 #include "hello.skel.h"
 #include "net/ethernet.h"
 #include "linux/ip.h"
 #include "netinet/tcp.h"
+ 
 
 
 int main (int argc, char *argv[]) {
@@ -40,6 +43,7 @@ int main (int argc, char *argv[]) {
                 return -2;
         }
 
+        assert(opts.retval == XDP_PASS);
         printf("IT RAN!\n");
 
         return 0;

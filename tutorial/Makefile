@@ -1,5 +1,3 @@
-LIBS = bpf
-
 all: hello.bpf.o hello.skel.h test
 
 hello.bpf.o: hello.bpf.c
@@ -9,8 +7,7 @@ hello.skel.h: hello.bpf.o
 	bpftool gen skeleton $< > $@
 
 test: test.c
-	gcc -Wall -o $@ $< -l$(LIBS)
-	
+	gcc -Wall -o $@ $< -lbpf
 
 .PHONY:
 clean:

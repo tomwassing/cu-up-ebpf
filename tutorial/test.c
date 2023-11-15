@@ -19,7 +19,8 @@ int main (int argc, char *argv[]) {
                 .sz = sizeof(struct bpf_test_run_opts),
                 // ctx is an skb in this case
                 .ctx_in = &skb,
-                .ctx_size_in = sizeof(skb)
+                .ctx_size_in = sizeof(skb),
+                .repeat = 1
         };
 
         // load our fib lookup test program into the Kernel and return our
@@ -31,14 +32,15 @@ int main (int argc, char *argv[]) {
         }
 
         // get the prog_fd from the skeleton, and run our test.
-        prog_fd = bpf_program__fd(skel->progs.tracepoint__syscalls__sys_exit_open);
+        prog_fd = bpf_program__fd(skel->progs.xdp_prog_simple);
         err = bpf_prog_test_run_opts(prog_fd, &opts);
         if (err != 0) {
-                printf("[error]: bpf test run failed: %d\n", err);
-                perror("bpf_prog_test_run_opts");
+                printf("[error]: bpf test run failed: %d\n", err); // -1
+                perror("bpf_prog_test_run_opts"); // bpf_prog_test_run_opts: Unknown error 524
                 return -2;
         }
 
-        printf("IT RAN!");
+        printf("IT RAN!\n");
+
         return 0;
 }

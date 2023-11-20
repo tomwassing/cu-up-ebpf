@@ -32951,14 +32951,18 @@ struct hrtimer_sleeper {
 	struct task_struct *task;
 };
 
+struct rt_waiter_node {
+	struct rb_node entry;
+	int prio;
+	u64 deadline;
+};
+
 struct rt_mutex_waiter {
-	struct rb_node tree_entry;
-	struct rb_node pi_tree_entry;
+	struct rt_waiter_node tree;
+	struct rt_waiter_node pi_tree;
 	struct task_struct *task;
 	struct rt_mutex_base *lock;
 	unsigned int wake_state;
-	int prio;
-	u64 deadline;
 	struct ww_acquire_ctx *ww_ctx;
 };
 
@@ -35680,8 +35684,8 @@ struct kvm_arch {
 	struct kvm_pmu_event_filter *pmu_event_filter;
 	struct task_struct *nx_lpage_recovery_thread;
 	bool tdp_mmu_enabled;
+	atomic64_t tdp_mmu_pages;
 	struct list_head tdp_mmu_roots;
-	struct list_head tdp_mmu_pages;
 	spinlock_t tdp_mmu_pages_lock;
 	bool memslots_have_rmaps;
 	hpa_t hv_root_tdp;
@@ -35901,6 +35905,7 @@ struct kvm_x86_ops {
 	int (*get_cpl)(struct kvm_vcpu *);
 	void (*set_segment)(struct kvm_vcpu *, struct kvm_segment *, int);
 	void (*get_cs_db_l_bits)(struct kvm_vcpu *, int *, int *);
+	bool (*is_valid_cr0)(struct kvm_vcpu *, long unsigned int);
 	void (*set_cr0)(struct kvm_vcpu *, long unsigned int);
 	bool (*is_valid_cr4)(struct kvm_vcpu *, long unsigned int);
 	void (*set_cr4)(struct kvm_vcpu *, long unsigned int);
@@ -39383,6 +39388,7 @@ struct ring_buffer_iter {
 	struct buffer_page *head_page;
 	struct buffer_page *cache_reader_page;
 	long unsigned int cache_read;
+	long unsigned int cache_pages_removed;
 	u64 read_stamp;
 	u64 page_stamp;
 	struct ring_buffer_event *event;
@@ -39502,6 +39508,7 @@ struct ring_buffer_per_cpu {
 	rb_time_t before_stamp;
 	u64 event_stamp[5];
 	u64 read_stamp;
+	long unsigned int pages_removed;
 	long int nr_pages_to_update;
 	struct list_head new_pages;
 	struct work_struct update_pages_work;
@@ -40553,11 +40560,12 @@ enum fetch_op {
 	FETCH_OP_ST_UMEM = 14,
 	FETCH_OP_ST_STRING = 15,
 	FETCH_OP_ST_USTRING = 16,
-	FETCH_OP_MOD_BF = 17,
-	FETCH_OP_LP_ARRAY = 18,
-	FETCH_OP_TP_ARG = 19,
-	FETCH_OP_END = 20,
-	FETCH_NOP_SYMBOL = 21,
+	FETCH_OP_ST_SYMSTR = 17,
+	FETCH_OP_MOD_BF = 18,
+	FETCH_OP_LP_ARRAY = 19,
+	FETCH_OP_TP_ARG = 20,
+	FETCH_OP_END = 21,
+	FETCH_NOP_SYMBOL = 22,
 };
 
 struct fetch_insn {
@@ -40581,7 +40589,8 @@ struct fetch_insn {
 struct fetch_type {
 	const char *name;
 	size_t size;
-	int is_signed;
+	bool is_signed;
+	bool is_string;
 	print_type_func_t print;
 	const char *fmt;
 	const char *fmttype;
@@ -40675,18 +40684,19 @@ enum {
 	TP_ERR_ARRAY_TOO_BIG = 39,
 	TP_ERR_BAD_TYPE = 40,
 	TP_ERR_BAD_STRING = 41,
-	TP_ERR_BAD_BITFIELD = 42,
-	TP_ERR_ARG_NAME_TOO_LONG = 43,
-	TP_ERR_NO_ARG_NAME = 44,
-	TP_ERR_BAD_ARG_NAME = 45,
-	TP_ERR_USED_ARG_NAME = 46,
-	TP_ERR_ARG_TOO_LONG = 47,
-	TP_ERR_NO_ARG_BODY = 48,
-	TP_ERR_BAD_INSN_BNDRY = 49,
-	TP_ERR_FAIL_REG_PROBE = 50,
-	TP_ERR_DIFF_PROBE_TYPE = 51,
-	TP_ERR_DIFF_ARG_TYPE = 52,
-	TP_ERR_SAME_PROBE = 53,
+	TP_ERR_BAD_SYMSTRING = 42,
+	TP_ERR_BAD_BITFIELD = 43,
+	TP_ERR_ARG_NAME_TOO_LONG = 44,
+	TP_ERR_NO_ARG_NAME = 45,
+	TP_ERR_BAD_ARG_NAME = 46,
+	TP_ERR_USED_ARG_NAME = 47,
+	TP_ERR_ARG_TOO_LONG = 48,
+	TP_ERR_NO_ARG_BODY = 49,
+	TP_ERR_BAD_INSN_BNDRY = 50,
+	TP_ERR_FAIL_REG_PROBE = 51,
+	TP_ERR_DIFF_PROBE_TYPE = 52,
+	TP_ERR_DIFF_ARG_TYPE = 53,
+	TP_ERR_SAME_PROBE = 54,
 };
 
 struct trace_eprobe {
@@ -40787,6 +40797,7 @@ struct synth_field {
 	bool is_signed;
 	bool is_string;
 	bool is_dynamic;
+	bool is_stack;
 };
 
 enum {
@@ -45724,6 +45735,7 @@ struct bpf_cpu_map_entry {
 	atomic_t refcnt;
 	struct callback_head rcu;
 	struct work_struct kthread_stop_wq;
+	struct completion kthread_running;
 };
 
 struct bpf_cpu_map {
@@ -125029,7 +125041,7 @@ struct tcp_fastopen_metrics {
 
 struct tcp_metrics_block {
 	struct tcp_metrics_block *tcpm_next;
-	possible_net_t tcpm_net;
+	struct net *tcpm_net;
 	struct inetpeer_addr tcpm_saddr;
 	struct inetpeer_addr tcpm_daddr;
 	long unsigned int tcpm_stamp;

@@ -44,3 +44,36 @@ uint32_t HFN(uint32_t count) {
 uint32_t COUNT(uint32_t hfn, uint32_t sn) {
     return pdcp_compute_count(hfn, sn, PDCP_SN);
 }
+
+struct gtphdr {
+   __u8 version:3,
+         pt:1,
+         spare:4;
+   __u8 message_type;
+   __u16 length;
+   __u32 teid;
+   __u16 sequence_number;
+   __u8 spare2;
+   __u8 npdu_number;
+   __u8 next_extension_header_type;
+};
+
+struct gtphdr *parse_gtphdr(void *data, void *data_end) {
+   struct ethhdr *eth = data;
+   if (eth + 1 > data_end)
+       return NULL;
+
+   struct iphdr *ip = (struct iphdr *)(eth + 1);
+   if (ip + 1 > data_end)
+       return NULL;
+
+   struct udphdr *udp = (struct udphdr *)(ip + 1);
+   if (udp + 1 > data_end)
+       return NULL;
+
+   struct gtphdr *gtp = (struct gtphdr *)(udp + 1);
+   if (gtp + 1 > data_end)
+       return NULL;
+
+   return gtp;
+}

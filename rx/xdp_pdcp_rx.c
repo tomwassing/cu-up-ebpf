@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-#include <linux/bpf.h>
+#include "vmlinux.h"
+// #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 #include <stdbool.h>
 
@@ -56,7 +57,9 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	return 1;
 }
 
-// SEC("xdp")
+
+
+SEC("xdp")
 int xdp_prog_simple(struct xdp_md *ctx) {
 
   // Unpack header

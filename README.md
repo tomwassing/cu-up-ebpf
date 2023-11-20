@@ -9,6 +9,7 @@ The WP4 provides the programmable data plane components of the DESIRE6G architec
 
 ## Features
 
+- CO-RE (Compile Once – Run Everywhere)
 - Ciphering
 - Compression (ROHC)
 - Integrity

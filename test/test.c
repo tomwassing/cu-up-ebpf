@@ -5,7 +5,7 @@
 #include <net/ethernet.h>
 #include <arpa/inet.h>
 
-#include "example.skel.h"
+#include "xdp_pdcp_rx.skel.h"
 
 int main (int argc, char *argv[]) {
 
@@ -49,14 +49,14 @@ int main (int argc, char *argv[]) {
         };
 
         // Load program into kernel.
-        struct example_bpf *prog = example_bpf__open_and_load();
+        struct xdp_pdcp_rx *prog = xdp_pdcp_rx__open_and_load();
         if (!prog) {
                 printf("[error]: failed to open and load program.\n");
                 return -1;
         }
 
         // Get the prog_fd from the skeleton.
-        int prog_fd = bpf_program__fd(prog->progs.drop_icmp);
+        int prog_fd = bpf_program__fd(prog->progs.xdp_pdcp_rx);
         
         // Run test with ICMP packet.
         int err = bpf_prog_test_run_opts(prog_fd, &opts);
@@ -65,6 +65,11 @@ int main (int argc, char *argv[]) {
                 perror("bpf_prog_test_run_opts");
                 return -1;
         }
+
+       printf("retval: %d\n", opts.retval);
+       printf("header size: %d\n", opts.data_size_in);
+
+        printf("header after size: %d\n", opts.data_size_out);
 
         // Testing!
         assert(opts.retval == XDP_DROP);
@@ -78,6 +83,9 @@ int main (int argc, char *argv[]) {
                 perror("bpf_prog_test_run_opts");
                 return -1;
         }
+
+        printf("retval: %d\n", opts.retval);
+        printf("header size: %d\n", opts.data_size_out);
 
         // Testing!
         assert(opts.retval == XDP_PASS);

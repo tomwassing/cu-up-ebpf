@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "vmlinux.h"
 
 enum pdcp_size {B12 = 12, B18 = 18};
 

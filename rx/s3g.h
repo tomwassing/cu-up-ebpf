@@ -1,6 +1,12 @@
-#include <stdint.h>
+#ifndef S3G_H
+#define S3G_H
 
-typedef struct {
+#include "vmlinux.h"
+
+typedef uint8_t sec_mac[4];
+
+typedef struct
+{
   uint32_t lfsr[16];
   uint32_t fsm[3];
 } s3g_state;
@@ -23,18 +29,18 @@ static const uint8_t SQ[256] = {
     0xa3, 0x90, 0x19, 0xa8, 0x6c, 0x09, 0xd0, 0xf0, 0x86};
 
 static const uint8_t S[256] = {
-    99,  124, 119, 123, 242, 107, 111, 197, 48,  1,   103, 43,  254, 215, 171, 118, 202, 130, 201, 125, 250, 89,
-    71,  240, 173, 212, 162, 175, 156, 164, 114, 192, 183, 253, 147, 38,  54,  63,  247, 204, 52,  165, 229, 241,
-    113, 216, 49,  21,  4,   199, 35,  195, 24,  150, 5,   154, 7,   18,  128, 226, 235, 39,  178, 117, 9,   131,
-    44,  26,  27,  110, 90,  160, 82,  59,  214, 179, 41,  227, 47,  132, 83,  209, 0,   237, 32,  252, 177, 91,
-    106, 203, 190, 57,  74,  76,  88,  207, 208, 239, 170, 251, 67,  77,  51,  133, 69,  249, 2,   127, 80,  60,
-    159, 168, 81,  163, 64,  143, 146, 157, 56,  245, 188, 182, 218, 33,  16,  255, 243, 210, 205, 12,  19,  236,
-    95,  151, 68,  23,  196, 167, 126, 61,  100, 93,  25,  115, 96,  129, 79,  220, 34,  42,  144, 136, 70,  238,
-    184, 20,  222, 94,  11,  219, 224, 50,  58,  10,  73,  6,   36,  92,  194, 211, 172, 98,  145, 149, 228, 121,
-    231, 200, 55,  109, 141, 213, 78,  169, 108, 86,  244, 234, 101, 122, 174, 8,   186, 120, 37,  46,  28,  166,
-    180, 198, 232, 221, 116, 31,  75,  189, 139, 138, 112, 62,  181, 102, 72,  3,   246, 14,  97,  53,  87,  185,
-    134, 193, 29,  158, 225, 248, 152, 17,  105, 217, 142, 148, 155, 30,  135, 233, 206, 85,  40,  223, 140, 161,
-    137, 13,  191, 230, 66,  104, 65,  153, 45,  15,  176, 84,  187, 22};
+    99, 124, 119, 123, 242, 107, 111, 197, 48, 1, 103, 43, 254, 215, 171, 118, 202, 130, 201, 125, 250, 89,
+    71, 240, 173, 212, 162, 175, 156, 164, 114, 192, 183, 253, 147, 38, 54, 63, 247, 204, 52, 165, 229, 241,
+    113, 216, 49, 21, 4, 199, 35, 195, 24, 150, 5, 154, 7, 18, 128, 226, 235, 39, 178, 117, 9, 131,
+    44, 26, 27, 110, 90, 160, 82, 59, 214, 179, 41, 227, 47, 132, 83, 209, 0, 237, 32, 252, 177, 91,
+    106, 203, 190, 57, 74, 76, 88, 207, 208, 239, 170, 251, 67, 77, 51, 133, 69, 249, 2, 127, 80, 60,
+    159, 168, 81, 163, 64, 143, 146, 157, 56, 245, 188, 182, 218, 33, 16, 255, 243, 210, 205, 12, 19, 236,
+    95, 151, 68, 23, 196, 167, 126, 61, 100, 93, 25, 115, 96, 129, 79, 220, 34, 42, 144, 136, 70, 238,
+    184, 20, 222, 94, 11, 219, 224, 50, 58, 10, 73, 6, 36, 92, 194, 211, 172, 98, 145, 149, 228, 121,
+    231, 200, 55, 109, 141, 213, 78, 169, 108, 86, 244, 234, 101, 122, 174, 8, 186, 120, 37, 46, 28, 166,
+    180, 198, 232, 221, 116, 31, 75, 189, 139, 138, 112, 62, 181, 102, 72, 3, 246, 14, 97, 53, 87, 185,
+    134, 193, 29, 158, 225, 248, 152, 17, 105, 217, 142, 148, 155, 30, 135, 233, 206, 85, 40, 223, 140, 161,
+    137, 13, 191, 230, 66, 104, 65, 153, 45, 15, 176, 84, 187, 22};
 
 /*********************************************************************
     Name: s3g_mul_x
@@ -115,7 +121,7 @@ uint32_t s3g_s1(uint32_t w)
   uint8_t srw0 = S[(uint8_t)((w >> 24) & 0xff)];
   uint8_t srw1 = S[(uint8_t)((w >> 16) & 0xff)];
   uint8_t srw2 = S[(uint8_t)((w >> 8) & 0xff)];
-  uint8_t srw3 = S[(uint8_t)((w)&0xff)];
+  uint8_t srw3 = S[(uint8_t)((w) & 0xff)];
 
   r0 = ((s3g_mul_x(srw0, 0x1b)) ^ (srw1) ^ (srw2) ^ ((s3g_mul_x(srw3, 0x1b)) ^ srw3));
 
@@ -143,7 +149,7 @@ uint32_t s3g_s2(uint32_t w)
   uint8_t sqw0 = SQ[(uint8_t)((w >> 24) & 0xff)];
   uint8_t sqw1 = SQ[(uint8_t)((w >> 16) & 0xff)];
   uint8_t sqw2 = SQ[(uint8_t)((w >> 8) & 0xff)];
-  uint8_t sqw3 = SQ[(uint8_t)((w)&0xff)];
+  uint8_t sqw3 = SQ[(uint8_t)((w) & 0xff)];
 
   r0 = ((s3g_mul_x(sqw0, 0x69)) ^ (sqw1) ^ (sqw2) ^ ((s3g_mul_x(sqw3, 0x69)) ^ sqw3));
 
@@ -165,7 +171,7 @@ uint32_t s3g_s2(uint32_t w)
                             Integrity Algorithms UEA2 & UIA2 D2 v1.1
                             Section 3.4.6
 *********************************************************************/
-uint32_t s3g_clock_fsm(s3g_state* state)
+uint32_t s3g_clock_fsm(s3g_state *state)
 {
   uint32_t f = ((state->lfsr[15] + state->fsm[0]) & 0xffffffff) ^ state->fsm[1];
   uint32_t r = (state->fsm[1] + (state->fsm[2] ^ state->lfsr[5])) & 0xffffffff;
@@ -186,22 +192,79 @@ uint32_t s3g_clock_fsm(s3g_state* state)
                             Integrity Algorithms UEA2 & UIA2 D2 v1.1
                             Section 3.4.4 and Section 3.4.5
 *********************************************************************/
-void s3g_clock_lfsr(s3g_state* state, uint32_t f)
+void s3g_clock_lfsr(s3g_state *state, uint32_t f)
 {
   uint32_t v = (((state->lfsr[0] << 8) & 0xffffff00) ^ (s3g_mul_alpha((uint8_t)((state->lfsr[0] >> 24) & 0xff))) ^
                 (state->lfsr[2]) ^ ((state->lfsr[11] >> 8) & 0x00ffffff) ^
                 (s3g_div_alpha((uint8_t)((state->lfsr[11]) & 0xff))) ^ (f));
-  uint8_t  i;
+  uint8_t i;
 
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 15; i++)
+  {
     state->lfsr[i] = state->lfsr[i + 1];
   }
   state->lfsr[15] = v;
 }
 
-void s3g_initialize(s3g_state* state, uint32_t k[4], uint32_t iv[4])
+/* mask8bit.
+ * Input n: an integer in 1-7.
+ * Output : an 8 bit mask.
+ * Prepares an 8 bit mask with required number of 1 bits on the MSB side.
+ */
+uint8_t mask8bit(int n)
 {
-  uint8_t  i = 0;
+  return 0xff ^ ((1 << (8 - n)) - 1);
+}
+
+uint64_t s3g_MUL64x(uint64_t V, uint64_t c)
+{
+  if (V & 0x8000000000000000)
+    return (V << 1) ^ c;
+  else
+    return V << 1;
+}
+
+/* MUL64xPOW.
+ * Input V: a 64-bit input.
+ * Input i: a positive integer.
+ * Input c: a 64-bit input.
+ * Output : a 64-bit output.
+ * A 64-bit memory is allocated which is to be freed by the calling function.
+ * See section 4.3.3 for details.
+ */
+uint64_t s3g_MUL64xPOW(uint64_t V, uint8_t i, uint64_t c)
+{
+  if (i == 0)
+    return V;
+  else
+    return s3g_MUL64x(s3g_MUL64xPOW(V, i - 1, c), c);
+}
+
+/* MUL64.
+ * Input V: a 64-bit input.
+ * Input P: a 64-bit input.
+ * Input c: a 64-bit input.
+ * Output : a 64-bit output.
+ * A 64-bit memory is allocated which is to be freed by the calling
+ * function.
+ * See section 4.3.4 for details.
+ */
+uint64_t s3g_MUL64(uint64_t V, uint64_t P, uint64_t c)
+{
+  uint64_t result = 0;
+  int i = 0;
+
+  for (i = 0; i < 64; i++)
+  {
+    if ((P >> i) & 0x1)
+      result ^= s3g_MUL64xPOW(V, i, c);
+  }
+  return result;
+}
+
+void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
+{
+  uint8_t i = 0;
   uint32_t f = 0x0;
 
   state->lfsr[15] = k[3] ^ iv[0];
@@ -211,27 +274,28 @@ void s3g_initialize(s3g_state* state, uint32_t k[4], uint32_t iv[4])
 
   state->lfsr[11] = k[3] ^ 0xffffffff;
   state->lfsr[10] = k[2] ^ 0xffffffff ^ iv[2];
-  state->lfsr[9]  = k[1] ^ 0xffffffff ^ iv[3];
-  state->lfsr[8]  = k[0] ^ 0xffffffff;
-  state->lfsr[7]  = k[3];
-  state->lfsr[6]  = k[2];
-  state->lfsr[5]  = k[1];
-  state->lfsr[4]  = k[0];
-  state->lfsr[3]  = k[3] ^ 0xffffffff;
-  state->lfsr[2]  = k[2] ^ 0xffffffff;
-  state->lfsr[1]  = k[1] ^ 0xffffffff;
-  state->lfsr[0]  = k[0] ^ 0xffffffff;
+  state->lfsr[9] = k[1] ^ 0xffffffff ^ iv[3];
+  state->lfsr[8] = k[0] ^ 0xffffffff;
+  state->lfsr[7] = k[3];
+  state->lfsr[6] = k[2];
+  state->lfsr[5] = k[1];
+  state->lfsr[4] = k[0];
+  state->lfsr[3] = k[3] ^ 0xffffffff;
+  state->lfsr[2] = k[2] ^ 0xffffffff;
+  state->lfsr[1] = k[1] ^ 0xffffffff;
+  state->lfsr[0] = k[0] ^ 0xffffffff;
 
   state->fsm[0] = 0x0;
   state->fsm[1] = 0x0;
   state->fsm[2] = 0x0;
-  for (i = 0; i < 32; i++) {
+  for (i = 0; i < 32; i++)
+  {
     f = s3g_clock_fsm(state);
     s3g_clock_lfsr(state, f);
   }
 }
 
-void s3g_generate_keystream(s3g_state* state, uint32_t n, uint32_t* ks)
+void s3g_generate_keystream(s3g_state *state, uint32_t n, uint32_t *ks)
 {
   uint32_t t = 0;
   uint32_t f = 0x0;
@@ -241,10 +305,118 @@ void s3g_generate_keystream(s3g_state* state, uint32_t n, uint32_t* ks)
   //  Clock LFSR in keystream mode once.
   s3g_clock_lfsr(state, 0x0);
 
-  for (t = 0; t < n; t++) {
+  for (t = 0; t < n; t++)
+  {
     f = s3g_clock_fsm(state);
     // Note that ks[t] corresponds to z_{t+1} in section 4.2
     ks[t] = f ^ state->lfsr[0];
     s3g_clock_lfsr(state, 0x0);
   }
 }
+
+struct f9_params
+{
+  uint8_t *key;
+  uint32_t count;
+  uint32_t fresh;
+  uint32_t dir;
+  uint8_t *data;
+  uint64_t length;
+};
+
+void s3g_f9(struct f9_params params)
+{
+  sec_mac mac;
+  uint8_t *key = params.key;
+  uint32_t count = params.count;
+  uint32_t fresh = params.fresh;
+  uint32_t dir = params.dir;
+  uint8_t *data = params.data;
+  uint64_t length = params.length;
+
+  uint32_t K[4], IV[4], z[5];
+  uint32_t i = 0, D;
+  uint64_t EVAL;
+  uint64_t V;
+  uint64_t P;
+  uint64_t Q;
+  uint64_t c;
+  s3g_state state, *state_ptr;
+
+  uint64_t M_D_2;
+  int rem_bits = 0;
+  state_ptr = &state;
+  /* Load the Integrity Key for SNOW3G initialization as in section 4.4. */
+  for (i = 0; i < 4; i++)
+    K[3 - i] = (key[4 * i] << 24) ^ (key[4 * i + 1] << 16) ^ (key[4 * i + 2] << 8) ^ (key[4 * i + 3]);
+
+  /* Prepare the Initialization Vector (IV) for SNOW3G initialization as
+     in section 4.4. */
+  IV[3] = count;
+  IV[2] = fresh;
+  IV[1] = count ^ (dir << 31);
+  IV[0] = fresh ^ (dir << 15);
+
+  z[0] = z[1] = z[2] = z[3] = z[4] = 0;
+
+  /* Run SNOW 3G to produce 5 keystream words z_1, z_2, z_3, z_4 and z_5. */
+  s3g_initialize(state_ptr, K, IV);
+  s3g_generate_keystream(state_ptr, 5, z);
+  // s3g_deinitialize(state_ptr);
+  P = (uint64_t)z[0] << 32 | (uint64_t)z[1];
+  Q = (uint64_t)z[2] << 32 | (uint64_t)z[3];
+
+  /* Calculation */
+  if ((length % 64) == 0)
+    D = (length >> 6) + 1;
+  else
+    D = (length >> 6) + 2;
+  EVAL = 0;
+  c = 0x1b;
+
+  /* for 0 <= i <= D-3 */
+  for (i = 0; i < D - 2; i++)
+  {
+    V = EVAL ^ ((uint64_t)data[8 * i] << 56 | (uint64_t)data[8 * i + 1] << 48 | (uint64_t)data[8 * i + 2] << 40 |
+                (uint64_t)data[8 * i + 3] << 32 | (uint64_t)data[8 * i + 4] << 24 | (uint64_t)data[8 * i + 5] << 16 |
+                (uint64_t)data[8 * i + 6] << 8 | (uint64_t)data[8 * i + 7]);
+    EVAL = s3g_MUL64(V, P, c);
+  }
+
+  /* for D-2 */
+  rem_bits = length % 64;
+  if (rem_bits == 0)
+    rem_bits = 64;
+
+  M_D_2 = 0;
+  i = 0;
+  while (rem_bits > 7)
+  {
+    M_D_2 |= (uint64_t)data[8 * (D - 2) + i] << (8 * (7 - i));
+    rem_bits -= 8;
+    i++;
+  }
+  if (rem_bits > 0)
+    M_D_2 |= (uint64_t)(data[8 * (D - 2) + i] & mask8bit(rem_bits)) << (8 * (7 - i));
+
+  V = EVAL ^ M_D_2;
+  EVAL = s3g_MUL64(V, P, c);
+
+  /* for D-1 */
+  EVAL ^= length;
+
+  /* Multiply by Q */
+  EVAL = s3g_MUL64(EVAL, Q, c);
+
+  /* XOR with z_5: this is a modification to the reference C code,
+     which forgot to XOR z[5] */
+  for (i = 0; i < 4; i++)
+  {
+    /*
+    MAC_I[i] = (mac32 >> (8*(3-i))) & 0xff;
+    */
+    *mac[i] = ((EVAL >> (56 - (i * 8))) ^ (z[4] >> (24 - (i * 8)))) & 0xff;
+  }
+}
+
+#endif

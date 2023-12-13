@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "vmlinux.h"
 
 /// PDCP Data PDU header
 /// Ref: TS 38.323 Sec. 6.2.2

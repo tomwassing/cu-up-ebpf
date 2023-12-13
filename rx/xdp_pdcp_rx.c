@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "ciphering.h"
+#include "integrity.h"
 #include "pdcp_pdu.h"
 #include "pdcp_entity_base.h"
 
@@ -60,7 +61,7 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 
 
 SEC("xdp")
-int xdp_prog_simple(struct xdp_md *ctx) {
+int xdp_pdcp_rx(struct xdp_md *ctx) {
 
   // Unpack header
   struct pdcp_data_pdu_header hdr;
@@ -89,8 +90,8 @@ int xdp_prog_simple(struct xdp_md *ctx) {
     out = &ctx->data;
   }
 
-  if (integrity_check_enabled) {
-    // TODO
+  if (integrity_check_enabled && !check_integrity(&ctx->data, &ctx->data_end, rcvd_count)) {
+    return XDP_DROP;
   }
 
   // removing PDCP header
@@ -103,4 +104,5 @@ int xdp_prog_simple(struct xdp_md *ctx) {
 int main() {
   return 0;
 }
+
 // char _license[] SEC("license") = "GPL";

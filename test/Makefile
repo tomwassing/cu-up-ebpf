@@ -15,6 +15,6 @@ test: test.c
 .PHONY:
 clean:
 	rm -rf vmlinux.h
-	rm -rf example.bpf.o
-	rm -rf example.skel.h
+	rm -rf xdp_pdcp_rx.o
+	rm -rf xdp_pdcp_rx.skel.h
 	rm -rf test

@@ -324,15 +324,14 @@ struct f9_params
   uint64_t length;
 };
 
-void s3g_f9(struct f9_params params)
+void s3g_f9(sec_mac *mac, struct f9_params *params)
 {
-  sec_mac mac;
-  uint8_t *key = params.key;
-  uint32_t count = params.count;
-  uint32_t fresh = params.fresh;
-  uint32_t dir = params.dir;
-  uint8_t *data = params.data;
-  uint64_t length = params.length;
+  uint8_t *key = params->key;
+  uint32_t count = params->count;
+  uint32_t fresh = params->fresh;
+  uint32_t dir = params->dir;
+  uint8_t *data = params->data;
+  uint64_t length = params->length;
 
   uint32_t K[4], IV[4], z[5];
   uint32_t i = 0, D;

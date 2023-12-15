@@ -90,8 +90,20 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     out = &ctx->data;
   }
 
-  if (integrity_check_enabled && !check_integrity(&ctx->data, &ctx->data_end, rcvd_count)) {
-    return XDP_DROP;
+  if (integrity_check_enabled) {
+    // extract MAC from PDCP SDU trailer
+    sec_mac mac;
+    uint32_t mac_offset = ctx->data_end - ctx->data - 4;
+
+    for (uint8_t i = 0; i < 4; i++) {
+      mac[i] = out[mac_offset + i];
+    }
+
+    bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac);
+    if (!valid) {
+      return XDP_DROP;
+    }
+
   }
 
   // removing PDCP header
@@ -105,4 +117,4 @@ int main() {
   return 0;
 }
 
-// char _license[] SEC("license") = "GPL";
+char _license[] SEC("license") = "GPL";

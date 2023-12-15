@@ -53,9 +53,9 @@ void security_nia1(sec_mac *mac, struct nia1_params *params)
     }
 }
 
-bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count)
+bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac *mac)
 {
-    sec_mac mac;
+    sec_mac mac_exp;
     sec_128_key key;
 
     struct nia1_params params = {
@@ -74,9 +74,17 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count)
         return true;
     case nia1:
 
-        security_nia1(&mac, &params);
+        security_nia1(&mac_exp, &params);
         break;
     }
 
-    return false;
+    if (integrity_algo != nia0) {
+        for (uint8_t i = 0; i < 4; i++) {
+            if (*mac[i] != mac_exp[i]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }

@@ -35,6 +35,11 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	uint32_t *data = (void *)(long)ctx->data;
 	uint32_t *data_end = (void *)(long)ctx->data_end;
 
+  // check if PDCP header is present
+  if (data_end - data < pdpc_header_size(PDCP_SN)) {
+    return 0;
+  }
+
 	switch (PDCP_SN) {
     case B12:
       hdr->sn = (*data & 0x0fU) << 8U; // first 4 bits SN
@@ -58,11 +63,8 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	return 1;
 }
 
-
-
 SEC("xdp")
 int xdp_pdcp_rx(struct xdp_md *ctx) {
-
   // Unpack header
   struct pdcp_data_pdu_header hdr;
   if (!parse_pdcp_header(ctx, &hdr)) {
@@ -111,7 +113,6 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
 
 	return XDP_PASS;
 }
-
 
 int main() {
   return 0;

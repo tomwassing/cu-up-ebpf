@@ -178,7 +178,10 @@ uint32_t s3g_clock_fsm(s3g_state *state)
 
   state->fsm[2] = s3g_s2(state->fsm[1]);
   state->fsm[1] = s3g_s1(state->fsm[0]);
+  // return 0;
   state->fsm[0] = r;
+
+  bpf_trace_printk("fsm: %x\n", f);
 
   return f;
 }
@@ -265,7 +268,7 @@ uint64_t s3g_MUL64(uint64_t V, uint64_t P, uint64_t c)
 void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
 {
   uint8_t i = 0;
-  uint32_t f = 0x0;
+  uint32_t f;
 
   state->lfsr[15] = k[3] ^ iv[0];
   state->lfsr[14] = k[2];
@@ -291,7 +294,7 @@ void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
   for (i = 0; i < 32; i++)
   {
     f = s3g_clock_fsm(state);
-    s3g_clock_lfsr(state, f);
+    // s3g_clock_lfsr(state, f);
   }
 }
 
@@ -340,11 +343,10 @@ void s3g_f9(sec_mac *mac, struct f9_params *params)
   uint64_t P;
   uint64_t Q;
   uint64_t c;
-  s3g_state state, *state_ptr;
+  s3g_state state;
 
   uint64_t M_D_2;
   int rem_bits = 0;
-  state_ptr = &state;
   /* Load the Integrity Key for SNOW3G initialization as in section 4.4. */
   for (i = 0; i < 4; i++)
     K[3 - i] = (key[4 * i] << 24) ^ (key[4 * i + 1] << 16) ^ (key[4 * i + 2] << 8) ^ (key[4 * i + 3]);
@@ -357,10 +359,9 @@ void s3g_f9(sec_mac *mac, struct f9_params *params)
   IV[0] = fresh ^ (dir << 15);
 
   z[0] = z[1] = z[2] = z[3] = z[4] = 0;
-
   /* Run SNOW 3G to produce 5 keystream words z_1, z_2, z_3, z_4 and z_5. */
-  s3g_initialize(state_ptr, K, IV);
-  s3g_generate_keystream(state_ptr, 5, z);
+  s3g_initialize(&state, K, IV);
+  // s3g_generate_keystream(state_ptr, 5, z);
   // s3g_deinitialize(state_ptr);
   P = (uint64_t)z[0] << 32 | (uint64_t)z[1];
   Q = (uint64_t)z[2] << 32 | (uint64_t)z[3];

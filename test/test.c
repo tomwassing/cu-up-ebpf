@@ -70,7 +70,6 @@ int main (int argc, char *argv[]) {
        printf("header size: %d\n", opts.data_size_in);
 
         printf("header after size: %d\n", opts.data_size_out);
-
         // Testing!
         assert(opts.retval == XDP_DROP);
         printf("[success] drop ICMP packets\n");

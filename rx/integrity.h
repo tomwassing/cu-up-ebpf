@@ -8,7 +8,7 @@ enum integrity_algorithm
     nia3
 };
 
-const enum integrity_algorithm integrity_algo = nia0;
+const enum integrity_algorithm integrity_algo = nia1;
 const int K_128_Key = 1;
 
 struct nia1_params
@@ -73,7 +73,6 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac
     case nia0:
         return true;
     case nia1:
-
         security_nia1(&mac_exp, &params);
         break;
     }

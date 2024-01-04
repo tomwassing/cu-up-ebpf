@@ -8,6 +8,7 @@ xdp_pdcp_rx.o: ../rx/xdp_pdcp_rx.c
 
 xdp_pdcp_rx.skel.h: xdp_pdcp_rx.o
 	bpftool gen skeleton $< > $@
+	sed -i '/mmaped/d' xdp_pdcp_rx.skel.h # TODO: fix
 
 test: test.c
 	gcc -Wall -o $@ $< -lbpf

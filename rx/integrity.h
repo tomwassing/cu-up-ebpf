@@ -68,8 +68,6 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac
         .msg_len = data_end - data
     };
 
-    bpf_printk("HERE: %d\n", params.msg_len);
-
     switch (integrity_algo)
     {
     case nia0:

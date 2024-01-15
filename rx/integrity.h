@@ -59,7 +59,7 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac
     sec_128_key key;
 
     struct nia1_params params = {
-        .key = key,
+        // .key = key,
         .count = count,
         .bearer = 0,
         .direction = uplink,
@@ -67,6 +67,8 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac
         .msg_end = data_end,
         .msg_len = data_end - data
     };
+
+    bpf_printk("HERE: %d\n", params.msg_len);
 
     switch (integrity_algo)
     {

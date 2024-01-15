@@ -59,20 +59,20 @@ struct gtphdr {
 };
 
 struct gtphdr *parse_gtphdr(void *data, void *data_end) {
-   struct ethhdr *eth = data;
-   if (eth + 1 > data_end)
+    struct ethhdr *eth = data;
+    if ((void *)(eth + 1) > (void *)data_end)
        return NULL;
 
-   struct iphdr *ip = (struct iphdr *)(eth + 1);
-   if (ip + 1 > data_end)
+    struct iphdr *ip = (struct iphdr *)(eth + 1);
+    if ((void *)(ip + 1) > (void *)data_end)
        return NULL;
 
-   struct udphdr *udp = (struct udphdr *)(ip + 1);
-   if (udp + 1 > data_end)
+    struct udphdr *udp = (struct udphdr *)(ip + 1);
+    if ((void *)(udp + 1) > (void *)data_end)
        return NULL;
 
-   struct gtphdr *gtp = (struct gtphdr *)(udp + 1);
-   if (gtp + 1 > data_end)
+    struct gtphdr *gtp = (struct gtphdr *)(udp + 1);
+    if ((void *)(gtp + 1) > (void *)data_end)
        return NULL;
 
    return gtp;

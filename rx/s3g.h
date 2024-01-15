@@ -178,7 +178,6 @@ uint32_t s3g_clock_fsm(s3g_state *state)
 
   state->fsm[2] = s3g_s2(state->fsm[1]);
   state->fsm[1] = s3g_s1(state->fsm[0]);
-  // return 0;
   state->fsm[0] = r;
 
   bpf_trace_printk("fsm: %x\n", f);
@@ -293,6 +292,8 @@ void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
   state->fsm[2] = 0x0;
   for (i = 0; i < 32; i++)
   {
+    bpf_printk("i: %d\n", i);
+
     f = s3g_clock_fsm(state);
     // s3g_clock_lfsr(state, f);
   }
@@ -327,7 +328,7 @@ struct f9_params
   uint64_t length;
 };
 
-void s3g_f9(sec_mac *mac, struct f9_params *params)
+bool s3g_f9(sec_mac *mac, struct f9_params *params)
 {
   uint8_t *key = params->key;
   uint32_t count = params->count;
@@ -374,9 +375,14 @@ void s3g_f9(sec_mac *mac, struct f9_params *params)
   EVAL = 0;
   c = 0x1b;
 
+
   /* for 0 <= i <= D-3 */
   for (i = 0; i < D - 2; i++)
   {
+    if (length >= 8 * i + 1) {
+      return false;
+    }
+
     V = EVAL ^ ((uint64_t)data[8 * i] << 56 | (uint64_t)data[8 * i + 1] << 48 | (uint64_t)data[8 * i + 2] << 40 |
                 (uint64_t)data[8 * i + 3] << 32 | (uint64_t)data[8 * i + 4] << 24 | (uint64_t)data[8 * i + 5] << 16 |
                 (uint64_t)data[8 * i + 6] << 8 | (uint64_t)data[8 * i + 7]);
@@ -392,12 +398,24 @@ void s3g_f9(sec_mac *mac, struct f9_params *params)
   i = 0;
   while (rem_bits > 7)
   {
+
+    if (length >= 8 * (D - 2) + i + 1) {
+      return false;
+    }
+
     M_D_2 |= (uint64_t)data[8 * (D - 2) + i] << (8 * (7 - i));
     rem_bits -= 8;
     i++;
   }
-  if (rem_bits > 0)
+
+  if (rem_bits > 0) {
+
+    if (length >= 8 * (D - 2) + i + 1) {
+      return false;
+    }
+
     M_D_2 |= (uint64_t)(data[8 * (D - 2) + i] & mask8bit(rem_bits)) << (8 * (7 - i));
+  }
 
   V = EVAL ^ M_D_2;
   EVAL = s3g_MUL64(V, P, c);

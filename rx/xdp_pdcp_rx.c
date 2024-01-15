@@ -35,8 +35,10 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	uint32_t *data = (void *)(long)ctx->data;
 	uint32_t *data_end = (void *)(long)ctx->data_end;
 
-  // check if PDCP header is present
-  if (data_end - data < pdpc_header_size(PDCP_SN)) {
+
+  // check size
+  if (data + pdpc_header_size(PDCP_SN) > data_end) {
+    // logger.log_error("PDCP header too small. size={}", data_end - data);
     return 0;
   }
 
@@ -71,6 +73,9 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     return XDP_DROP;
   }
 
+  // print header info
+  bpf_printk("SN: %d\n", hdr.sn);
+
   // Calculate RCVD_COUNT:
   uint32_t rcvd_hfn, rcvd_count;
   if ((int64_t)hdr.sn < (int64_t)SN(st.rx_deliv) - (int64_t)pdpc_window_size(PDCP_SN)) {
@@ -81,6 +86,10 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     rcvd_hfn = HFN(st.rx_deliv);
   }
   rcvd_count = COUNT(rcvd_hfn, hdr.sn);
+
+
+  // print
+  // bpf_printk("SN: %d, HFN: %d, COUNT: %d\n", hdr.sn, rcvd_hfn, rcvd_count);
 
   // TODO: check COUNT and notifiy RRC.
 

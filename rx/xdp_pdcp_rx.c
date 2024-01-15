@@ -73,9 +73,6 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     return XDP_DROP;
   }
 
-  // print header info
-  bpf_printk("SN: %d\n", hdr.sn);
-
   // Calculate RCVD_COUNT:
   uint32_t rcvd_hfn, rcvd_count;
   if ((int64_t)hdr.sn < (int64_t)SN(st.rx_deliv) - (int64_t)pdpc_window_size(PDCP_SN)) {
@@ -86,10 +83,6 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     rcvd_hfn = HFN(st.rx_deliv);
   }
   rcvd_count = COUNT(rcvd_hfn, hdr.sn);
-
-
-  // print
-  // bpf_printk("SN: %d, HFN: %d, COUNT: %d\n", hdr.sn, rcvd_hfn, rcvd_count);
 
   // TODO: check COUNT and notifiy RRC.
 
@@ -111,6 +104,7 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     }
 
     bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac);
+    bpf_printk("valid: %d\n", valid);
     if (!valid) {
       return XDP_DROP;
     }

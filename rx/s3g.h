@@ -180,8 +180,6 @@ uint32_t s3g_clock_fsm(s3g_state *state)
   state->fsm[1] = s3g_s1(state->fsm[0]);
   state->fsm[0] = r;
 
-  bpf_trace_printk("fsm: %x\n", f);
-
   return f;
 }
 
@@ -292,8 +290,6 @@ void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
   state->fsm[2] = 0x0;
   for (i = 0; i < 32; i++)
   {
-    bpf_printk("i: %d\n", i);
-
     f = s3g_clock_fsm(state);
     // s3g_clock_lfsr(state, f);
   }

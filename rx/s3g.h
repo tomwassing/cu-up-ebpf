@@ -70,10 +70,12 @@ uint8_t s3g_mul_x(uint8_t v, uint8_t c)
 *********************************************************************/
 uint8_t s3g_mul_x_pow(uint8_t v, uint8_t i, uint8_t c)
 {
-  if (i == 0)
-    return v;
-  else
-    return s3g_mul_x(s3g_mul_x_pow(v, i - 1, c), c);
+  uint8_t result = v;
+  for (int j = 0; j < i; j++) {
+    result = s3g_mul_x(result, c);
+  }
+  return result;
+  
 }
 
 /*********************************************************************
@@ -234,10 +236,14 @@ uint64_t s3g_MUL64x(uint64_t V, uint64_t c)
  */
 uint64_t s3g_MUL64xPOW(uint64_t V, uint8_t i, uint64_t c)
 {
-  if (i == 0)
-    return V;
-  else
-    return s3g_MUL64x(s3g_MUL64xPOW(V, i - 1, c), c);
+  uint64_t result = V;
+
+  for (uint8_t j = 0; j < i; j++)
+  {
+    result = s3g_MUL64x(result, c);
+  }
+
+  return result;
 }
 
 /* MUL64.
@@ -271,7 +277,6 @@ void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
   state->lfsr[14] = k[2];
   state->lfsr[13] = k[1];
   state->lfsr[12] = k[0] ^ iv[1];
-
   state->lfsr[11] = k[3] ^ 0xffffffff;
   state->lfsr[10] = k[2] ^ 0xffffffff ^ iv[2];
   state->lfsr[9] = k[1] ^ 0xffffffff ^ iv[3];
@@ -288,10 +293,11 @@ void s3g_initialize(s3g_state *state, uint32_t k[4], uint32_t iv[4])
   state->fsm[0] = 0x0;
   state->fsm[1] = 0x0;
   state->fsm[2] = 0x0;
+
   for (i = 0; i < 32; i++)
   {
     f = s3g_clock_fsm(state);
-    // s3g_clock_lfsr(state, f);
+    s3g_clock_lfsr(state, f);
   }
 }
 
@@ -371,7 +377,6 @@ bool s3g_f9(sec_mac *mac, struct f9_params *params)
   EVAL = 0;
   c = 0x1b;
 
-
   /* for 0 <= i <= D-3 */
   for (i = 0; i < D - 2; i++)
   {
@@ -431,6 +436,8 @@ bool s3g_f9(sec_mac *mac, struct f9_params *params)
     */
     *mac[i] = ((EVAL >> (56 - (i * 8))) ^ (z[4] >> (24 - (i * 8)))) & 0xff;
   }
+
+  return true;
 }
 
 #endif

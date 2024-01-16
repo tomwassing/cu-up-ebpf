@@ -44,7 +44,7 @@ void security_nia1(sec_mac *mac, struct nia1_params *params)
             .count = params->count,
             .fresh = params->bearer << 27,
             .dir = params->direction,
-            .data = params->msg_begin,
+            .data = (uint8_t *)params->msg_begin,
             .length = params->msg_len
         };
 
@@ -56,7 +56,7 @@ void security_nia1(sec_mac *mac, struct nia1_params *params)
 bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac *mac)
 {
     sec_mac mac_exp;
-    sec_128_key key;
+    // sec_128_key key;
 
     struct nia1_params params = {
         // .key = key,

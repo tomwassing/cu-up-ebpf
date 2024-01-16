@@ -364,7 +364,7 @@ bool s3g_f9(sec_mac *mac, struct f9_params *params)
   z[0] = z[1] = z[2] = z[3] = z[4] = 0;
   /* Run SNOW 3G to produce 5 keystream words z_1, z_2, z_3, z_4 and z_5. */
   s3g_initialize(&state, K, IV);
-  // s3g_generate_keystream(state_ptr, 5, z);
+  s3g_generate_keystream(&state, 5, z);
   // s3g_deinitialize(state_ptr);
   P = (uint64_t)z[0] << 32 | (uint64_t)z[1];
   Q = (uint64_t)z[2] << 32 | (uint64_t)z[3];
@@ -380,10 +380,6 @@ bool s3g_f9(sec_mac *mac, struct f9_params *params)
   /* for 0 <= i <= D-3 */
   for (i = 0; i < D - 2; i++)
   {
-    if (length >= 8 * i + 1) {
-      return false;
-    }
-
     V = EVAL ^ ((uint64_t)data[8 * i] << 56 | (uint64_t)data[8 * i + 1] << 48 | (uint64_t)data[8 * i + 2] << 40 |
                 (uint64_t)data[8 * i + 3] << 32 | (uint64_t)data[8 * i + 4] << 24 | (uint64_t)data[8 * i + 5] << 16 |
                 (uint64_t)data[8 * i + 6] << 8 | (uint64_t)data[8 * i + 7]);
@@ -399,11 +395,6 @@ bool s3g_f9(sec_mac *mac, struct f9_params *params)
   i = 0;
   while (rem_bits > 7)
   {
-
-    if (length >= 8 * (D - 2) + i + 1) {
-      return false;
-    }
-
     M_D_2 |= (uint64_t)data[8 * (D - 2) + i] << (8 * (7 - i));
     rem_bits -= 8;
     i++;

@@ -108,7 +108,6 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
     if (!valid) {
       return XDP_DROP;
     }
-
   }
 
   // removing PDCP header

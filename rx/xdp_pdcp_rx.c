@@ -103,8 +103,9 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
       mac[i] = out[mac_offset + i];
     }
 
-    bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac);
-    bpf_printk("valid: %d\n", valid);
+    sec_128_key key = {0};
+    bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac, &key);
+    // bpf_printk("valid  mac: %d\n", (int) mac[0]);
     if (!valid) {
       return XDP_DROP;
     }

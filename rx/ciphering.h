@@ -3,9 +3,6 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-
-typedef uint8_t sec_128_key[16];
-
 enum ciphering_algorithm
 {
     nea0,

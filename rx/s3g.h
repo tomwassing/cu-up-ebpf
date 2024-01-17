@@ -4,6 +4,7 @@
 #include "vmlinux.h"
 
 typedef uint8_t sec_mac[4];
+typedef uint8_t sec_128_key[16];
 
 typedef struct
 {
@@ -322,7 +323,7 @@ void s3g_generate_keystream(s3g_state *state, uint32_t n, uint32_t *ks)
 
 struct f9_params
 {
-  uint8_t *key;
+  sec_128_key *key;
   uint32_t count;
   uint32_t fresh;
   uint32_t dir;
@@ -332,7 +333,7 @@ struct f9_params
 
 bool s3g_f9(sec_mac *mac, struct f9_params *params)
 {
-  uint8_t *key = params->key;
+  uint8_t *key = (uint8_t*) params->key;
   uint32_t count = params->count;
   uint32_t fresh = params->fresh;
   uint32_t dir = params->dir;

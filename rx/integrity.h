@@ -10,11 +10,11 @@ enum integrity_algorithm
 
 const enum integrity_algorithm integrity_algo = nia1;
 const int K_128_Key = 1;
+typedef uint8_t sec_128_key[16];
 
 struct nia1_params
 {
-    sec_mac mac;
-    sec_128_key key;
+    sec_128_key *key;
     uint32_t count;
     uint8_t bearer;
     enum security_direction direction;
@@ -53,13 +53,10 @@ void security_nia1(sec_mac *mac, struct nia1_params *params)
     }
 }
 
-bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac *mac)
+bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac *mac, sec_128_key *key)
 {
-    sec_mac mac_exp;
-    // sec_128_key key;
-
     struct nia1_params params = {
-        // .key = key,
+        .key = key,
         .count = count,
         .bearer = 0,
         .direction = uplink,
@@ -67,6 +64,8 @@ bool check_integrity(uint32_t *data, uint32_t *data_end, uint32_t count, sec_mac
         .msg_end = data_end,
         .msg_len = data_end - data
     };
+
+    sec_mac mac_exp;
 
     switch (integrity_algo)
     {

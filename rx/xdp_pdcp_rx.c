@@ -65,6 +65,9 @@ int parse_pdcp_header(struct xdp_md *ctx, struct pdcp_data_pdu_header *hdr) {
 	return 1;
 }
 
+const sec_128_key key = {0x16, 0x17, 0x18, 0x19, 0x20, 0x21, 0x22, 0x23, 0x24, 
+                         0x25, 0x26, 0x27, 0x28, 0x29, 0x30, 0x31};
+
 SEC("xdp")
 int xdp_pdcp_rx(struct xdp_md *ctx) {
   // Unpack header
@@ -103,8 +106,7 @@ int xdp_pdcp_rx(struct xdp_md *ctx) {
       mac[i] = out[mac_offset + i];
     }
 
-    sec_128_key key = {0};
-    bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac, &key);
+    bool valid = check_integrity(&ctx->data, &ctx->data_end, rcvd_count, &mac, key);
     // bpf_printk("valid  mac: %d\n", (int) mac[0]);
     if (!valid) {
       return XDP_DROP;

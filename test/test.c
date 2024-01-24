@@ -7,7 +7,52 @@
 
 #include "xdp_pdcp_rx.skel.h"
 
+// Test PDUs for RX.
+// Generated from SDU1, using NIA1 and NEA1.
+#define PDU_SIZE_SNLEN_18 9
+
+uint8_t pdu1_algo1_count0_snlen18[PDU_SIZE_SNLEN_18] = {0x80, 0x00, 0x00, 0x28, 0xb7, 0x87, 0xb7, 0x5f, 0xd7};
+
+int test_pdu1() {
+        // Mock packet.
+        int pkt_len = PDU_SIZE_SNLEN_18;
+        char pkt[PDU_SIZE_SNLEN_18];
+
+        // Fill in the packet 
+        memcpy(pkt, pdu1_algo1_count0_snlen18, pkt_len);
+
+        // Define our BPF_PROG_RUN options with our mock data.
+        struct bpf_test_run_opts opts = {
+                .sz = sizeof(struct bpf_test_run_opts),
+                .data_in = &pkt,
+                .data_size_in = sizeof(pkt),
+        };
+
+        // Load program into kernel.
+        struct xdp_pdcp_rx *prog = xdp_pdcp_rx__open_and_load();
+        if (!prog) {
+                printf("[error]: failed to open and load program.\n");
+                return -1;
+        }
+
+        // Get the prog_fd from the skeleton.
+        int prog_fd = bpf_program__fd(prog->progs.xdp_pdcp_rx);
+        
+        // Run test with ICMP packet.
+        int err = bpf_prog_test_run_opts(prog_fd, &opts);
+        if (err != 0) {
+                printf("[error]: bpf_prog_test_run_opts failed: %d\n", err);
+                perror("bpf_prog_test_run_opts");
+                return -1;
+        }
+
+        assert(opts.retval == XDP_PASS);
+        return 0;
+}
+
 int main (int argc, char *argv[]) {
+
+        test_pdu1();
 
         // Mock packet.
         int pkt_len = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct icmphdr);

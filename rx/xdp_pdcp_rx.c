@@ -70,6 +70,8 @@ const sec_128_key key = {0x16, 0x17, 0x18, 0x19, 0x20, 0x21, 0x22, 0x23, 0x24,
 
 SEC("xdp")
 int xdp_pdcp_rx(struct xdp_md *ctx) {
+  // TODO: SDAP
+
   // Unpack header
   struct pdcp_data_pdu_header hdr;
   if (!parse_pdcp_header(ctx, &hdr)) {

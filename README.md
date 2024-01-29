@@ -10,9 +10,9 @@ The WP4 provides the programmable data plane components of the DESIRE6G architec
 ## Features
 
 - CO-RE (Compile Once – Run Everywhere)
-- Ciphering
-- Compression (ROHC)
-- Integrity
+- Ciphering // TODO
+- Compression (ROHC) // TODO
+- Integrity // Work in progress
 
 ## System Requirements
 Ubuntu 22.04 LTS with kernel version 5.15.
@@ -59,6 +59,15 @@ sudo ip link set <INTERFACE> xdpoffload obj xdp_cu_up.o sec xdp_cu_up
 
 ## Architecture
 The implementation utilises the PDCP and SDAP implementation from [srsRAN](https://github.com/srsran/srsRAN_Project). In the srsRAN PDCP layer implementation RObust Header Compression (ROHC) is missing and is suplemented from the open source ROHC library ([rohc-lib.org](https://rohc-lib.org)).
+
+## Challenges
+The main challenges of the implementation was porting the srsRAN code to eBPF-compatbile C. The eBPF verifier is very strict and imposes serval restrictions on the code. The main restrictions are:
+
+- **Safety checks on all (external, e.g., packets) memory accesses** - The original code never assumed eBPF would be used and therefore did not perform any safety checks. The solution was to add safety checks to all memory accesses. This was done by wrapping packet memory access by simply checking if the index would exceed the packet size. 
+- **No dynamic memory allocation** - The verifier does not allow dynamic memory allocation. This is mainly an issue in the ciphering algorithm as it is difficult to determine the size of the output buffer. The solution was to use a fixed size buffer and limit the input size to the size of the buffer.
+- **No unbounded loops** - The verifier limits the number of loop iterations to prevent infinite loops. In the code this mainly formed an issue in the integrity and ciphering algorithms as they use recursive functions. Removing the recursion and replacing it with a bounded loop solved the issue
+- **No standard library** - We can't use the standard library as it is not available in the kernel. This formed a small obstacle as the srsRAN code uses the standard library for some basic functions. The solution was to implement the functions ourselves.
+
 
 ## Contributing
 

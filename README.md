@@ -4,7 +4,6 @@
 
 This repository contains an CU-UP implementation in eBPF/XDP developed as part of WP4 of the [DESIRE6G](https://desire6g.eu) project. [DESIRE6G](https://desire6g.eu) is project coordinated by the University of Amsterdam, [Informatics Institute](https://ivi.uva.nl) and supported by the Smart Networks and Services Joint Undertaking (SNS JU). Funded by Horizon Europe research programme under Grant Agreement no. 101096466.
 
-
 The WP4 provides the programmable data plane components of the DESIRE6G architecture that will enable flexible changes in data plane functionality and the rapid deployment of customized network functions. Furthermore, WP4 will develop a pervasive monitoring infrastructure to obtain real-time information about the network resources with configurable granularity.
 
 ## Features
@@ -68,6 +67,9 @@ The main challenges of the implementation was porting the srsRAN code to eBPF-co
 - **No unbounded loops** - The verifier limits the number of loop iterations to prevent infinite loops. In the code this mainly formed an issue in the integrity and ciphering algorithms as they use recursive functions. Removing the recursion and replacing it with a bounded loop solved the issue
 - **No standard library** - We can't use the standard library as it is not available in the kernel. This formed a small obstacle as the srsRAN code uses the standard library for some basic functions. The solution was to implement the functions ourselves.
 
+
+## Authors
+- Tom J. Wassing
 
 ## Contributing
 

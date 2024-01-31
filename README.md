@@ -33,17 +33,10 @@ NOTE: Installing the Netronome SmartNIC drivers are not required to test or depl
 
 ## Usage
 
-### Build
-```sh
-cmake -S . -B build
-cmake --build build
-```
-
 ### Tests
 ```sh
-cmake -S . -B build
-cmake --build build
-cd build && ctest
+cd test
+make clean && make && sudo ./test
 ```
 
 ### Deployment
